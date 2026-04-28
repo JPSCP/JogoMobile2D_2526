@@ -4,49 +4,34 @@ public class PlayerMoviment : MonoBehaviour
 {
     private Rigidbody2D Rb;
 
-    public float jumpForce = 10f;
-    public float maxJumpTime = 0.2f;
+    public float gravityScale = 3f;
 
-    public LayerMask groundLayer;
-    public Transform feetPos;
-    public float groundDistance;
-
-    private bool isGrounded;
-    private bool isJumping;
-    private float jumpTimer;
+    private bool isUpsideDown = false;
 
     private void Start()
     {
         Rb = GetComponent<Rigidbody2D>();
+        Rb.gravityScale = gravityScale;
     }
 
     private void Update()
     {
-        isGrounded = Physics2D.OverlapCircle(feetPos.position, groundDistance, groundLayer);
-
-        if (isGrounded && Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump"))
         {
-            isJumping = true;
-            jumpTimer = 0;
-            Rb.linearVelocity = Vector2.up * jumpForce;
+            FlipGravity();
         }
+    }
 
-        if (isJumping && Input.GetButton("Jump"))
-        {
-            if (jumpTimer < maxJumpTime)
-            {
-                Rb.linearVelocity = Vector2.up * jumpForce;
-                jumpTimer += Time.deltaTime;
-            }
-            else
-            {
-                isJumping = false;
-            }
-        }
+    void FlipGravity()
+    {
+        isUpsideDown = !isUpsideDown;
 
-        if (Input.GetButtonUp("Jump"))
-        {
-            isJumping = false;
-        }
+        // Flip ONLY vertical gravity
+        Rb.gravityScale = isUpsideDown ? -gravityScale : gravityScale;
+
+        // Optional: flip sprite visually (WITHOUT rotating physics)
+        Vector3 scale = transform.localScale;
+        scale.y = isUpsideDown ? -Mathf.Abs(scale.y) : Mathf.Abs(scale.y);
+        transform.localScale = scale;
     }
 }
