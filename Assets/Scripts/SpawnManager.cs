@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
+    [Header("First Chunk")]
+    public GameObject firstLevelPrefab;
+
+    [Header("Random Chunks")]
     public GameObject[] levelPrefabs;
 
     public float pieceLength = 20f;
@@ -12,31 +16,34 @@ public class SpawnManager : MonoBehaviour
 
     private List<GameObject> activeChunks = new List<GameObject>();
 
-    private Transform cam;
-
     private void Start()
     {
-        cam = Camera.main.transform;
+        // Spawn FIRST guaranteed chunk
+        SpawnFirstPiece();
 
-        // Spawn initial chunks
-        for (int i = 0; i < 5; i++)
+        // Then spawn initial random chunks
+        for (int i = 0; i < 4; i++)
         {
-            SpawnPiece();
+            SpawnRandomPiece();
         }
     }
 
     private void Update()
     {
-        // Spawn new chunks ahead of camera
-        if (nextSpawnX < cam.position.x + 30f)
+        float camX = Camera.main.transform.position.x;
+
+        // Spawn ahead
+        if (camX + 30f > nextSpawnX)
         {
-            SpawnPiece();
+            SpawnRandomPiece();
         }
 
-        // Destroy old chunks behind camera
+        // Destroy old chunks
+        float destroyX = camX - destroyDistance;
+
         for (int i = activeChunks.Count - 1; i >= 0; i--)
         {
-            if (activeChunks[i].transform.position.x < cam.position.x - destroyDistance)
+            if (activeChunks[i].transform.position.x < destroyX)
             {
                 Destroy(activeChunks[i]);
                 activeChunks.RemoveAt(i);
@@ -44,15 +51,22 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    void SpawnPiece()
+    void SpawnFirstPiece()
+    {
+        GameObject chunk = Instantiate(firstLevelPrefab, new Vector2(nextSpawnX, 0f), Quaternion.identity);
+
+        activeChunks.Add(chunk);
+
+        nextSpawnX += pieceLength;
+    }
+
+    void SpawnRandomPiece()
     {
         int index = Random.Range(0, levelPrefabs.Length);
 
-        Vector2 spawnPos = new Vector2(nextSpawnX, 0);
+        GameObject chunk = Instantiate(levelPrefabs[index], new Vector2(nextSpawnX, 0f), Quaternion.identity);
 
-        GameObject newChunk = Instantiate(levelPrefabs[index], spawnPos, Quaternion.identity);
-
-        activeChunks.Add(newChunk);
+        activeChunks.Add(chunk);
 
         nextSpawnX += pieceLength;
     }
