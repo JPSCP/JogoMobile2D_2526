@@ -26,6 +26,7 @@ public class PlayerMoviment : MonoBehaviour
     private void Update()
     {
         CheckGround();
+        CheckBounds();
 
         if (Input.GetButtonDown("Jump"))
         {
@@ -36,7 +37,7 @@ public class PlayerMoviment : MonoBehaviour
     private void FixedUpdate()
     {
         // Constant forward movement
-        Rb.linearVelocity = new Vector2(forwardSpeed, Rb.linearVelocity.y);
+        Rb.linearVelocity = new Vector2(GameManager.Instance.GetSpeed(), Rb.linearVelocity.y);
     }
 
     void FlipGravity()
@@ -62,6 +63,16 @@ public class PlayerMoviment : MonoBehaviour
         if (isGrounded)
         {
             Rb.linearVelocity = new Vector2(Rb.linearVelocity.x, 0f);
+        }
+    }
+
+    void CheckBounds()
+    {
+        Vector3 screenPos = Camera.main.WorldToViewportPoint(transform.position);
+
+        if (screenPos.x < -0.1f || screenPos.y < -0.1f || screenPos.y > 1.1f)
+        {
+            GameManager.Instance.GameOver();
         }
     }
 

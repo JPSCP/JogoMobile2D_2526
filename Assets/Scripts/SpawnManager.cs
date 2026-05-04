@@ -16,29 +16,33 @@ public class SpawnManager : MonoBehaviour
 
     private List<GameObject> activeChunks = new List<GameObject>();
 
+    private bool firstChunkSpawned = false;
+
     private void Start()
     {
-        // Spawn FIRST guaranteed chunk
-        SpawnFirstPiece();
-
-        // Then spawn initial random chunks
-        for (int i = 0; i < 4; i++)
+        // Spawn inicial (inclui o primeiro fixo automaticamente)
+        for (int i = 0; i < 5; i++)
         {
-            SpawnRandomPiece();
+            SpawnPiece();
         }
     }
 
     private void Update()
     {
+        if (GameManager.Instance == null) return;
+
         float camX = Camera.main.transform.position.x;
 
-        // Spawn ahead
-        if (camX + 30f > nextSpawnX)
+        // Distância dinâmica baseada na velocidade
+        float spawnDistance = 30f + GameManager.Instance.GetSpeed();
+
+        // Spawn à frente
+        if (camX + spawnDistance > nextSpawnX)
         {
-            SpawnRandomPiece();
+            SpawnPiece();
         }
 
-        // Destroy old chunks
+        // Destruir chunks antigos
         float destroyX = camX - destroyDistance;
 
         for (int i = activeChunks.Count - 1; i >= 0; i--)
@@ -51,20 +55,25 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    void SpawnFirstPiece()
+    void SpawnPiece()
     {
-        GameObject chunk = Instantiate(firstLevelPrefab, new Vector2(nextSpawnX, 0f), Quaternion.identity);
+        GameObject prefabToSpawn;
 
-        activeChunks.Add(chunk);
+        // Primeiro chunk SEMPRE igual
+        if (!firstChunkSpawned)
+        {
+            prefabToSpawn = firstLevelPrefab;
+            firstChunkSpawned = true;
 
-        nextSpawnX += pieceLength;
-    }
+            nextSpawnX = 0f; // garante início correto
+        }
+        else
+        {
+            int index = Random.Range(0, levelPrefabs.Length);
+            prefabToSpawn = levelPrefabs[index];
+        }
 
-    void SpawnRandomPiece()
-    {
-        int index = Random.Range(0, levelPrefabs.Length);
-
-        GameObject chunk = Instantiate(levelPrefabs[index], new Vector2(nextSpawnX, 0f), Quaternion.identity);
+        GameObject chunk = Instantiate(prefabToSpawn, new Vector2(nextSpawnX, 0f), Quaternion.identity);
 
         activeChunks.Add(chunk);
 
