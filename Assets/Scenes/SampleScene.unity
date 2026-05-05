@@ -666,7 +666,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 4.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -691,7 +691,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.9756142, y: -0.5309148, z: -9.957549}
+  m_LocalPosition: {x: -0.9756142, y: 0.2190852, z: -9.957549}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -823,10 +823,10 @@ GameObject:
   m_Component:
   - component: {fileID: 622396950}
   - component: {fileID: 622396949}
-  - component: {fileID: 622396952}
+  - component: {fileID: 622396954}
   - component: {fileID: 622396953}
   - component: {fileID: 622396951}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CinemachineCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -858,7 +858,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 34
-    OrthographicSize: 5
+    OrthographicSize: 4.5
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -885,7 +885,7 @@ Transform:
   m_GameObject: {fileID: 622396948}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.9756142, y: -0.5309148, z: -9.957549}
+  m_LocalPosition: {x: -0.9756142, y: 0.2190852, z: -9.957549}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -924,7 +924,27 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   CustomBlends: {fileID: 0}
---- !u!114 &622396952
+--- !u!114 &622396953
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 622396948}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f453f694addf4275988fac205bc91968, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BoundingShape2D: {fileID: 949821518}
+  Damping: 2.14
+  SlowingDistance: 5
+  OversizeWindow:
+    Enabled: 0
+    MaxWindowSize: 0
+    Padding: 0
+  m_LegacyMaxWindowSize: -2
+--- !u!114 &622396954
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -942,27 +962,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: -2, y: -0.5, z: -10}
---- !u!114 &622396953
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 622396948}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f453f694addf4275988fac205bc91968, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  BoundingShape2D: {fileID: 949821518}
-  Damping: 0.5
-  SlowingDistance: 5
-  OversizeWindow:
-    Enabled: 0
-    MaxWindowSize: 0
-    Padding: 0
-  m_LegacyMaxWindowSize: -2
+  FollowOffset: {x: -2, y: 0.25, z: -10}
 --- !u!1 &800216288
 GameObject:
   m_ObjectHideFlags: 0
@@ -1107,7 +1107,7 @@ GameObject:
   m_Component:
   - component: {fileID: 949821517}
   - component: {fileID: 949821518}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CameraConfiner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1129,8 +1129,8 @@ Transform:
   m_Children: []
   m_Father: {fileID: 622396950}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!60 &949821518
-PolygonCollider2D:
+--- !u!61 &949821518
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1163,7 +1163,7 @@ PolygonCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 40, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -1173,14 +1173,8 @@ PolygonCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 191.19772, y: 9.997233}
-      - {x: -8.912956, y: 4.935933}
-      - {x: -9.030399, y: -4.92517}
-      - {x: 190.47011, y: -9.20017}
-      - {x: 190.52296, y: -0.036283612}
-  m_UseDelaunayMesh: 0
+  m_Size: {x: 100, y: 9.15}
+  m_EdgeRadius: 0
 --- !u!1 &1546121560
 GameObject:
   m_ObjectHideFlags: 0
@@ -1360,8 +1354,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c0ccfd19df543e4fa16cb61da0947c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forwardSpeed: 8
   gravityScale: 3
+  jumpForce: 12
   groundCheckDown: {fileID: 1624770768}
   groundCheckUp: {fileID: 800216289}
   groundDistance: 0.2

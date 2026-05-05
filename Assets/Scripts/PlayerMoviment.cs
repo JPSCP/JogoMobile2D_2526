@@ -5,8 +5,10 @@ public class PlayerMoviment : MonoBehaviour
     private Rigidbody2D Rb;
 
     [Header("Movement")]
-    public float forwardSpeed = 8f;
     public float gravityScale = 4f;
+
+    [Header("Jump")]
+    public float jumpForce = 12f;
 
     [Header("Ground Check")]
     public Transform groundCheckDown;
@@ -16,6 +18,7 @@ public class PlayerMoviment : MonoBehaviour
 
     private bool isUpsideDown = false;
     private bool isGrounded = false;
+    private bool canJump = false;
 
     private void Start()
     {
@@ -25,29 +28,74 @@ public class PlayerMoviment : MonoBehaviour
 
     private void Update()
     {
-        CheckGround();
-        CheckBounds();
+        if (GameManager.Instance == null || GameManager.Instance.isGameOver) return;
 
-        if (Input.GetButtonDown("Jump"))
-        {
-            FlipGravity();
-        }
+        CheckGround();
+        HandleInput();
     }
 
     private void FixedUpdate()
     {
-        // Constant forward movement
-        Rb.linearVelocity = new Vector2(GameManager.Instance.GetSpeed(), Rb.linearVelocity.y);
+        if (GameManager.Instance == null || GameManager.Instance.isGameOver) return;
+
+        // Movimento automático (velocidade do GameManager)
+        float speed = GameManager.Instance.GetSpeed();
+        Rb.linearVelocity = new Vector2(speed, Rb.linearVelocity.y);
+    }
+
+    void HandleInput()
+    {
+        // MOBILE
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            if (touch.phase == TouchPhase.Began)
+            {
+                if (touch.position.x < Screen.width / 2)
+                {
+                    Jump();
+                }
+                else
+                {
+                    FlipGravity();
+                }
+            }
+        }
+
+        // PC (para testes)
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (Input.mousePosition.x < Screen.width / 2)
+            {
+                Jump();
+            }
+            else
+            {
+                FlipGravity();
+            }
+        }
+    }
+
+    void Jump()
+    {
+        if (!canJump) return;
+
+        canJump = false;
+
+        float direction = isUpsideDown ? -1f : 1f;
+
+        Rb.linearVelocity = new Vector2(Rb.linearVelocity.x, 0f);
+        Rb.AddForce(Vector2.up * jumpForce * direction, ForceMode2D.Impulse);
     }
 
     void FlipGravity()
     {
         isUpsideDown = !isUpsideDown;
 
-        // Instant gravity flip
         Rb.gravityScale = isUpsideDown ? -gravityScale : gravityScale;
 
-        // Flip sprite visually only
+        // Flip visual
         Vector3 scale = transform.localScale;
         scale.y = isUpsideDown ? -Mathf.Abs(scale.y) : Mathf.Abs(scale.y);
         transform.localScale = scale;
@@ -59,20 +107,10 @@ public class PlayerMoviment : MonoBehaviour
 
         isGrounded = Physics2D.OverlapCircle(checkPoint.position, groundDistance, groundLayer);
 
-        // Snap to surface (removes floaty feel)
         if (isGrounded)
         {
             Rb.linearVelocity = new Vector2(Rb.linearVelocity.x, 0f);
-        }
-    }
-
-    void CheckBounds()
-    {
-        Vector3 screenPos = Camera.main.WorldToViewportPoint(transform.position);
-
-        if (screenPos.x < -0.1f || screenPos.y < -0.1f || screenPos.y > 1.1f)
-        {
-            GameManager.Instance.GameOver();
+            canJump = true;
         }
     }
 
