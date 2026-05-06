@@ -94,7 +94,11 @@ public class PlayerMoviment : MonoBehaviour
     {
         isUpsideDown = !isUpsideDown;
 
+        // Inverte gravidade
         Rb.gravityScale = isUpsideDown ? -gravityScale : gravityScale;
+
+        // Cancela qualquer movimento vertical
+        Rb.linearVelocity = new Vector2(Rb.linearVelocity.x, 0f);
 
         // Flip visual
         Vector3 scale = transform.localScale;
