@@ -27,6 +27,6 @@ public class UIManager : MonoBehaviour
 
         // Time (formatado)
         int seconds = Mathf.FloorToInt(GameManager.Instance.gameTime);
-        timeText.text = "Time: " + seconds + "s";
+        timeText.text = "Time: " + seconds + " s";
     }
 }

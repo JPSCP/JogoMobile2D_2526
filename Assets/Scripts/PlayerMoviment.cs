@@ -31,6 +31,7 @@ public class PlayerMoviment : MonoBehaviour
         if (GameManager.Instance == null || GameManager.Instance.isGameOver) return;
 
         CheckGround();
+        CheckBounds();
         HandleInput();
     }
 
@@ -119,6 +120,17 @@ public class PlayerMoviment : MonoBehaviour
         if (collision.CompareTag("Enemy"))
         {
             GameManager.Instance.GameOver();
+        }
+    }
+
+    void CheckBounds()
+    {
+        Vector3 screenPos = Camera.main.WorldToViewportPoint(transform.position);
+
+        if (screenPos.x < -0.1f || screenPos.y < -0.5f || screenPos.y > 1.1f)
+        {
+            GameManager.Instance.GameOver();
+            canJump = true;
         }
     }
 }
