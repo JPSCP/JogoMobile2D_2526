@@ -2,25 +2,22 @@ using UnityEngine;
 
 public class MoveRight : MonoBehaviour
 {
-    public float speedMultiplier = 1f; // 1 = mesma velocidade, <1 = parallax
+    public Transform cameraTransform;
+    public float parallaxEffect = 0.3f;
 
-    private float spriteWidth;
+    private Vector3 lastCameraPosition;
 
     private void Start()
     {
-        // Calcula largura do sprite
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        spriteWidth = sr.bounds.size.x;
+        lastCameraPosition = cameraTransform.position;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        if (GameManager.Instance == null || GameManager.Instance.isGameOver) return;
+        Vector3 deltaMovement = cameraTransform.position - lastCameraPosition;
 
-        float speed = GameManager.Instance.GetSpeed() * speedMultiplier;
+        transform.position += new Vector3(deltaMovement.x * parallaxEffect, 0f, 0f);
 
-        // Move para a esquerda
-        transform.position += Vector3.right * speed * Time.deltaTime;
-
+        lastCameraPosition = cameraTransform.position;
     }
 }
