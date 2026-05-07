@@ -7,6 +7,8 @@ public class UIManager : MonoBehaviour
 
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI timeText;
+    public TextMeshProUGUI finalScoreText;
+
 
     private void Awake()
     {
@@ -28,5 +30,8 @@ public class UIManager : MonoBehaviour
         // Time (formatado)
         int seconds = Mathf.FloorToInt(GameManager.Instance.gameTime);
         timeText.text = "Time: " + seconds + " s";
+
+        // FinalScore
+        finalScoreText.text = "Score: " + GameManager.Instance.score.ToString("00000");
     }
 }
