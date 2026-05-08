@@ -18,6 +18,12 @@ public class GameManager : MonoBehaviour
     [Header("Score")]
     public int score = 0;
 
+    [Header("Audio")]
+    public AudioSource musicSource;
+
+    public AudioClip gameplayMusic;
+    public AudioClip gameOverMusic;
+
     [Header("UI")]
     public GameObject gameOverPanel;
     public GameObject pausePanel;
@@ -38,7 +44,6 @@ public class GameManager : MonoBehaviour
     {
         currentSpeed = baseSpeed;
 
-        // Garante que os painéis começam desligados
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
 
@@ -46,6 +51,14 @@ public class GameManager : MonoBehaviour
             pausePanel.SetActive(false);
 
         Time.timeScale = 1f;
+
+        // Música gameplay
+        if (musicSource != null && gameplayMusic != null)
+        {
+            musicSource.clip = gameplayMusic;
+            musicSource.loop = true;
+            musicSource.Play();
+        }
     }
 
     private void Update()
@@ -88,6 +101,17 @@ public class GameManager : MonoBehaviour
         if (isGameOver) return;
 
         isGameOver = true;
+
+        // Troca música
+        if (musicSource != null && gameOverMusic != null)
+        {
+            musicSource.Stop();
+
+            musicSource.clip = gameOverMusic;
+            musicSource.loop = false;
+
+            musicSource.Play();
+        }
 
         if (gameOverPanel != null)
             gameOverPanel.SetActive(true);

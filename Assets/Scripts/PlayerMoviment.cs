@@ -10,113 +10,128 @@ public class PlayerMoviment : MonoBehaviour
     [Header("Jump")]
     public float jumpForce = 12f;
 
+    [Header("Flip")]
+    public float flipBoost = 6f;
+
     [Header("Ground Check")]
     public Transform groundCheckDown;
     public Transform groundCheckUp;
-    public float groundDistance = 0.2f;
+    public float groundDistance = 0.3f;
     public LayerMask groundLayer;
+
+    [Header("Audio")]
+    AudioSource audioSource;
+    public AudioClip jumpClip;
+    public AudioClip landClip;
 
     private bool isUpsideDown = false;
     private bool isGrounded = false;
-    private bool canJump = false;
 
     private void Start()
     {
         Rb = GetComponent<Rigidbody2D>();
+
         Rb.gravityScale = gravityScale;
+        Rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Update()
     {
-        if (GameManager.Instance == null || GameManager.Instance.isGameOver) return;
+        if (GameManager.Instance == null || GameManager.Instance.isGameOver)
+            return;
 
         CheckGround();
         CheckBounds();
-        HandleInput();
     }
 
     private void FixedUpdate()
     {
-        if (GameManager.Instance == null || GameManager.Instance.isGameOver) return;
+        if (GameManager.Instance == null || GameManager.Instance.isGameOver)
+            return;
 
-        // Movimento automático (velocidade do GameManager)
         float speed = GameManager.Instance.GetSpeed();
-        Rb.linearVelocity = new Vector2(speed, Rb.linearVelocity.y);
-    }
 
-    void HandleInput()
+        Rb.linearVelocity = new Vector2(
+            speed,
+            Rb.linearVelocity.y
+        );
+    }
+    public void OnJumpButton()
     {
-        // MOBILE
-        if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);
-
-            if (touch.phase == TouchPhase.Began)
-            {
-                if (touch.position.x < Screen.width / 2)
-                {
-                    Jump();
-                }
-                else
-                {
-                    FlipGravity();
-                }
-            }
-        }
-
-        // PC (para testes)
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (Input.mousePosition.x < Screen.width / 2)
-            {
-                Jump();
-            }
-            else
-            {
-                FlipGravity();
-            }
-        }
+        Debug.Log("JUMP BUTTON");
+        Jump();
     }
 
+    public void OnFlipButton()
+    {
+        FlipGravity();
+    }
     void Jump()
     {
-        if (!canJump) return;
+        if (!isGrounded)
+            return;
 
-        canJump = false;
+        audioSource.PlayOneShot(jumpClip);
 
         float direction = isUpsideDown ? -1f : 1f;
 
-        Rb.linearVelocity = new Vector2(Rb.linearVelocity.x, 0f);
-        Rb.AddForce(Vector2.up * jumpForce * direction, ForceMode2D.Impulse);
+        Vector2 velocity = Rb.linearVelocity;
+        velocity.y = 0f;
+
+        Rb.linearVelocity = velocity;
+
+        Rb.AddForce(
+            Vector2.up * jumpForce * direction,
+            ForceMode2D.Impulse
+        );
     }
 
     void FlipGravity()
     {
         isUpsideDown = !isUpsideDown;
 
-        // Inverte gravidade
-        Rb.gravityScale = isUpsideDown ? -gravityScale : gravityScale;
+        audioSource.PlayOneShot(jumpClip);
 
-        // Cancela qualquer movimento vertical
-        Rb.linearVelocity = new Vector2(Rb.linearVelocity.x, 0f);
+        // Inverte gravidade
+        Rb.gravityScale = isUpsideDown
+            ? -gravityScale
+            : gravityScale;
+
+        // Mantém movimento horizontal e suaviza vertical
+        Vector2 velocity = Rb.linearVelocity;
+        velocity.y *= -0.5f;
+
+        Rb.linearVelocity = velocity;
+
+        // Pequeno impulso para suavidade
+        Rb.AddForce(
+            Vector2.up * (isUpsideDown ? -flipBoost : flipBoost),
+            ForceMode2D.Impulse
+        );
 
         // Flip visual
         Vector3 scale = transform.localScale;
-        scale.y = isUpsideDown ? -Mathf.Abs(scale.y) : Mathf.Abs(scale.y);
+
+        scale.y = isUpsideDown
+            ? -Mathf.Abs(scale.y)
+            : Mathf.Abs(scale.y);
+
         transform.localScale = scale;
     }
 
     void CheckGround()
     {
-        Transform checkPoint = isUpsideDown ? groundCheckUp : groundCheckDown;
+        Transform checkPoint = isUpsideDown
+            ? groundCheckUp
+            : groundCheckDown;
 
-        isGrounded = Physics2D.OverlapCircle(checkPoint.position, groundDistance, groundLayer);
-
-        if (isGrounded)
-        {
-            Rb.linearVelocity = new Vector2(Rb.linearVelocity.x, 0f);
-            canJump = true;
-        }
+        isGrounded = Physics2D.OverlapCircle(
+            checkPoint.position,
+            groundDistance,
+            groundLayer
+        );
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -129,12 +144,39 @@ public class PlayerMoviment : MonoBehaviour
 
     void CheckBounds()
     {
-        Vector3 screenPos = Camera.main.WorldToViewportPoint(transform.position);
+        Vector3 screenPos =
+            Camera.main.WorldToViewportPoint(transform.position);
 
-        if (screenPos.x < -0.1f || screenPos.y < -0.5f || screenPos.y > 1.1f)
+        if (screenPos.x < -0.1f ||
+            screenPos.y < -0.1f ||
+            screenPos.y > 1.1f)
         {
             GameManager.Instance.GameOver();
-            canJump = true;
         }
+    }
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+
+        if (groundCheckDown != null)
+        {
+            Gizmos.DrawWireSphere(
+                groundCheckDown.position,
+                groundDistance
+            );
+        }
+
+        if (groundCheckUp != null)
+        {
+            Gizmos.DrawWireSphere(
+                groundCheckUp.position,
+                groundDistance
+            );
+        }
+    }
+
+    public void PlaySound(AudioClip clip)
+    {
+        audioSource.PlayOneShot(clip);
     }
 }
